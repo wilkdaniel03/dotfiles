@@ -10,7 +10,7 @@ for k,v in pairs(opts) do
 	vim.opt[k] = v
 end
 
-require'nvim-treesitter.configs'.setup {
+require'nvim-treesitter'.setup {
 	auto_install = true,
 	highlight = {
 		enable = true,
@@ -24,6 +24,9 @@ require'oil'.setup{
 	}
 }
 require'lsp_lines'.setup()
+require'slang-server'.setup()
+
+vim.lsp.enable("slang_server")
 
 vim.diagnostic.config({
   virtual_text = true
@@ -36,8 +39,29 @@ vim.keymap.set('n','<space>w','<CMD>w<CR>')
 vim.keymap.set('n','<space>q','<CMD>q!<CR>')
 vim.keymap.set('n','<space>e','<CMD>Oil<CR>')
 vim.keymap.set('n','<s-t>','<CMD>tabnew<CR>')
-vim.keymap.set('n','<s-n>','<CMD>tabnext<CR>')
-vim.keymap.set('n','<s-m>','<CMD>tabprevious<CR>')
+vim.keymap.set('n','<s-m>','<CMD>tabnext<CR>')
+vim.keymap.set('n','<s-n>','<CMD>tabprevious<CR>')
+
+vim.keymap.set({ "n", "s" }, "<Tab>", function()
+  if vim.snippet.active({ direction = 1 }) then
+    return "<Cmd>lua vim.snippet.jump(1)<CR>"
+  end
+  return "<Tab>"
+end, { expr = true })
+
+vim.keymap.set({ "n", "s" }, "<S-Tab>", function()
+  if vim.snippet.active({ direction = -1 }) then
+    return "<Cmd>lua vim.snippet.jump(-1)<CR>"
+  end
+  return "<S-Tab>"
+end, { expr = true })
+
+vim.keymap.set({ "n", "s" }, "<Space>s", function()
+  if vim.snippet.active() then
+    vim.snippet.stop()
+  end
+  return "<Esc>"
+end, { expr = true })
 
 local ensure_packer = function()
 	local fn = vim.fn
@@ -65,6 +89,7 @@ return require('packer').startup(function(use)
 	use 'hrsh7th/nvim-cmp'
 	use 'ErichDonGubler/lsp_lines.nvim'
 	use 'numToStr/Comment.nvim'
+	use 'hudson-trading/slang-server.nvim'
 
 	if packer_bootstrap then
 		require('packer').sync()
